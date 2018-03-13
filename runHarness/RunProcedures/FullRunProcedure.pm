@@ -126,15 +126,16 @@ override 'run' => sub {
 	my $sanityPassed = 1;
 	if ( $self->getParamValue('stopServices') ) {
 		## stop the services
-		$self->stopFrontendServices($cleanupLogDir);
-		$self->stopBackendServices($cleanupLogDir);
+#		$self->stopFrontendServices($cleanupLogDir);
+#		$self->stopBackendServices($cleanupLogDir);
 
 		# cleanup the databases
+		# TODO: clean data and reload OR do not clean data?
 		$self->cleanData($cleanupLogDir);
 
-		$self->stopDataServices($cleanupLogDir);
-		$self->stopInfrastructureServices($cleanupLogDir);
-		$self->unRegisterPortNumbers();
+#		$self->stopDataServices($cleanupLogDir);
+#		$self->stopInfrastructureServices($cleanupLogDir);
+#		$self->unRegisterPortNumbers();
 
 		## get the logs
 		$self->getLogFiles();
@@ -147,10 +148,10 @@ override 'run' => sub {
 			$console_logger->info("Sanity Checks Failed");
 		}
 
-		$self->removeFrontendServices($cleanupLogDir);
-		$self->removeBackendServices($cleanupLogDir);
-		$self->removeDataServices($cleanupLogDir);
-		$self->removeInfrastructureServices($cleanupLogDir);
+#		$self->removeFrontendServices($cleanupLogDir);
+#		$self->removeBackendServices($cleanupLogDir);
+#		$self->removeDataServices($cleanupLogDir);
+#		$self->removeInfrastructureServices($cleanupLogDir);
 		# clean up old logs and stats
 		$self->cleanup();
 	}
