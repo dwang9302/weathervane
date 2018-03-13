@@ -50,59 +50,86 @@ override 'run' => sub {
 	my $tmpDir    = $self->getParamValue('tmpDir');
 	my $seqnum = $self->seqnum;
 
+	# for data-prep logger
+	my $setupLogDir = $tmpDir . "/setupLogs";
+        	if ( !( -e $setupLogDir ) ) {
+        		`mkdir -p $setupLogDir`;
+        	}
+
 	# Make sure that the services know their external port numbers
 	$self->setExternalPortNumbers();
 
-	# configure the workload driver
-	my $ok = callBooleanMethodOnObjectsParallel( 'configureWorkloadDriver',
-		$self->workloadsRef );
-	if ( !$ok ) {
-		$self->cleanupAfterFailure(
-			"Couldn't configure the workload driver properly.  Exiting.",
-			$seqnum, $tmpDir, $outputDir );
-		my $runResult = RunResult->new(
-			'runNum'     => $seqnum,
-			'isPassable' => 0,
-		);
+	# track counter
+	my $loopTracker = 0;
 
-		return $runResult;
-	}
+    while (1) {
+        # configure the workload driver
+        my $ok = callBooleanMethodOnObjectsParallel( 'configureWorkloadDriver',
+            $self->workloadsRef );
+        if ( !$ok ) {
+            $self->cleanupAfterFailure(
+                "Couldn't configure the workload driver properly.  Exiting.",
+                $seqnum, $tmpDir, $outputDir );
+            my $runResult = RunResult->new(
+                'runNum'     => $seqnum,
+                'isPassable' => 0,
+            );
 
-	$console_logger->info("Starting run number $seqnum");
+            return $runResult;
+        }
 
-	# initialize the workload drivers
-	$ok = $self->initializeWorkloads( $seqnum, $tmpDir );
-	if ( !$ok ) {
-		$self->cleanupAfterFailure(
-			"Workload driver did not initialze properly.  Exiting.",
-			$seqnum, $tmpDir, $outputDir );
-		my $runResult = RunResult->new(
-			'runNum'     => $seqnum,
-			'isPassable' => 0,
-		);
+        $console_logger->info("Starting run number $seqnum");
 
-		return $runResult;
+        # initialize the workload drivers
+        $ok = $self->initializeWorkloads( $seqnum, $tmpDir );
+        if ( !$ok ) {
+            $self->cleanupAfterFailure(
+                "Workload driver did not initialze properly.  Exiting.",
+                $seqnum, $tmpDir, $outputDir );
+            my $runResult = RunResult->new(
+                'runNum'     => $seqnum,
+                'isPassable' => 0,
+            );
 
-	}
-	
-	my $interactive = $self->getParamValue('interactive');
-	if ($interactive) {
-		$self->interactiveMode();
-	}
-	
-	## start the workload driver and wait until it is done
-	$ok = $self->runWorkloads( $seqnum, $tmpDir );
-	if ( !$ok ) {
-		$self->cleanupAfterFailure(
-			"Workload driver did not start properly.  Exiting.",
-			$seqnum, $tmpDir, $outputDir );
-		my $runResult = RunResult->new(
-			'runNum'     => $seqnum,
-			'isPassable' => 0,
-		);
+            return $runResult;
 
-		return $runResult;
+        }
 
+        my $interactive = $self->getParamValue('interactive');
+        if ($interactive) {
+            $self->interactiveMode();
+        }
+
+        ## start the workload driver and wait until it is done
+        $ok = $self->runWorkloads( $seqnum, $tmpDir );
+        if ( !$ok ) {
+            $self->cleanupAfterFailure(
+                "Workload driver did not start properly.  Exiting.",
+                $seqnum, $tmpDir, $outputDir );
+            my $runResult = RunResult->new(
+                'runNum'     => $seqnum,
+                'isPassable' => 0,
+            );
+
+            return $runResult;
+
+        }
+
+
+        ## Data Prep ##
+        # Prepare the data for this run and start the data services
+        # TODO: container re-use
+        $console_logger->info($loopTracker . ": Preparing data for use in current run.\n");
+
+        my $dataPrepared = $self->prepareData($setupLogDir);
+        #TODO: container reuse fix in DataManagers/AuctionDataManager.pm
+
+        if ( !$dataPrepared ) {
+            $self->cleanupAfterFailure( "Failed: Could not properly load or prepare data for run $seqnum.  Exiting.", $seqnum, $tmpDir, $outputDir );
+        }
+
+        $self->clearReloadDb(); # so that data is only loaded once.
+        $loopTracker++;
 	}
 
 	## get stats that require services to be up
