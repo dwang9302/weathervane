@@ -60,7 +60,7 @@ override 'run' => sub {
 	$self->setExternalPortNumbers();
 
 	# track counter
-	my $loopTracker = 0;
+	my $loopTracker = 1;
 
     while (1) {
         # configure the workload driver
@@ -128,7 +128,7 @@ override 'run' => sub {
             $self->cleanupAfterFailure( "Failed: Could not properly load or prepare data for run $seqnum.  Exiting.", $seqnum, $tmpDir, $outputDir );
         }
 
-        $self->clearReloadDb(); # so that data is only loaded once.
+        $self->clearReloadDb(); # this function can be negated in AppInstance.pm, so that db is reloaded every time.
         $loopTracker++;
 	}
 

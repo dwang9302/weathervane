@@ -488,7 +488,7 @@ sub getWwwHostname {
 
 sub clearReloadDb {
 	my ($self) = @_;
-	$self->dataManager->setParamValue( 'reloadDb', 0 );;
+	$self->dataManager->setParamValue( 'reloadDb', 0 );
 }
 
 sub checkConfig {
@@ -1003,6 +1003,7 @@ sub configureAndStartDataServices {
 		if ( $serviceType ~~ @$dockerServiceTypesRef ) {
 			foreach my $service (@$servicesRef) {
 				$logger->debug( "Create " . $service->getDockerName() . "\n" );
+
 				$service->create($setupLogDir);
 			}
 		}
