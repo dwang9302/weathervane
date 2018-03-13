@@ -1,5 +1,10 @@
 ![Weathervane](doc/images/VMW-Weathervane-Logo-SML.png)
 
+## Changes to make:
+- Keep containers live after auction ended.
+- Rotate log files.
+- Enable the workload driver to run a long time without creating new containers. 
+
 ## Overview
 
 Weathervane is an application-level performance benchmark designed to allow the investigation of performance tradeoffs in modern virtualized and cloud infrastructures. It consists of an application, a workload driver that can drive a realistic and repeatable load against the application, and a run-harness that automates the process of executing runs and collecting results and relevant performance data. It can be used to investigate the performance characteristics of cloud and virtual infrastructures by deploying the application on the environment of interest, driving a load against the application, and examining the resulting performance metrics. A common use-case would involve varying some component or characteristic of the infrastructure in order to compare the effect of the alternatives on application-level performance.
