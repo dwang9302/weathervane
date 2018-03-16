@@ -36,6 +36,7 @@ sub usage {
     print "                      This must be provided if --private is used.\n";
     print "     --port :         This is the port number for the private registry.\n";
     print "                      This must be provided if --private is used.\n";
+    print "     --custombash :   The path of custom bash script. \n ";
     print "If the list of image names is empty, then all images are built and pushed.\n";
 }
 
@@ -45,13 +46,15 @@ my $port = 0;
 my $username = "";
 my $password = "";
 my $private = '';
+my $customBash = "";
 
 GetOptions('help' => \$help,
 			'host=s' => \$host,
 			'port=i' => \$port,
 			'username=s' => \$username,
 			'password=s' => \$password,
-			'private!' => \$private
+			'private!' => \$private,
+			'custombash=s' => \$customBash
 			);
 
 my @imageNames = qw(centos7 haproxy mongodb nginx postgresql rabbitmq zookeeper configurationmanager tomcat);
@@ -198,7 +201,9 @@ foreach my $imageName (@imageNames) {
 		my $tomcat8get = `curl -s http://www.us.apache.org/dist/tomcat/tomcat-8/`;
 		$tomcat8get =~ />v8\.5\.(\d+)\//;
 		my $tomcat8vers = $1;
-		push @buildArgs, "TOMCAT_VERSION=$tomcat8vers";		
+		push @buildArgs, "TOMCAT_VERSION=$tomcat8vers";
+	} elsif ($imageName eq "centos7" && $customBash ne "") {
+	    push @buildArgs, "custom_script=$customBash";
 	}
 	
 	buildImage($imageName, \@buildArgs, $fileout, $namespace, $version);	
