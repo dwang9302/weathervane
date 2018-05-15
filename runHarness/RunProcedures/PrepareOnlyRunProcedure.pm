@@ -122,7 +122,7 @@ sub run {
 	# Add appender to the console log to put a copy in the tmpLog directory
 	my $layout   = Log::Log4perl::Layout::PatternLayout->new("%d: %m%n");
 	my $appender = Log::Log4perl::Appender->new(
-		"Log::Dispatch::FileRotate",
+		"Log::Dispatch::File",
 		name     => "tmpdirConsoleFile",
 		filename => "$tmpDir/console.log",
 		mode     => "append",

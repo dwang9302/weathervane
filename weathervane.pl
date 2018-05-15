@@ -161,7 +161,7 @@ my $console_logger = get_logger("Console");
 $console_logger->level($INFO);
 my $layout   = Log::Log4perl::Layout::PatternLayout->new("%d{E MMM d HH:mm:ss yyyy}: %m%n");
 my $appender = Log::Log4perl::Appender->new(
-	"Log::Dispatch::FileRotate",
+	"Log::Dispatch::File",
 	name     => "rootConsoleFile",
 	filename => "$weathervaneHome/console.log",
 	mode     => "append",
@@ -180,7 +180,7 @@ my $weathervane_logger = get_logger("Weathervane");
 $weathervane_logger->level($WARN);
 $layout   = Log::Log4perl::Layout::PatternLayout->new("%d %p> %F{1}:%L %M - %m%n");
 $appender = Log::Log4perl::Appender->new(
-	"Log::Dispatch::FileRotate",
+	"Log::Dispatch::File",
 	name     => "rootDebugFile",
 	filename => "$weathervaneHome/debug.log",
 	mode     => "write",
